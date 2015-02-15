@@ -65,7 +65,7 @@ namespace AmazonPriceUpdateWebAPI.Controllers
                 else
                 {
                     HttpRequest httpRequest = HttpContext.Current.Request;
-                    this.apiManager.UpdateProductDetails(args, Request);
+                    this.apiManager.UpdateProductDetails(args, Request, APIConfigManager.BaseRequestUri);
                     httpResponse = Request.CreateResponse(HttpStatusCode.OK, "Updated successfully");
                 }
             }
@@ -77,8 +77,8 @@ namespace AmazonPriceUpdateWebAPI.Controllers
             return httpResponse;
         }
 
-        // PUT will confirm, Confirmation through email
-        public HttpResponseMessage Put([FromBody]ProductIdArgs args, bool confirmed)
+        // Post will confirm, Confirmation through email
+        public HttpResponseMessage Post([FromUri]ProductIdArgs args, bool confirmed)
         {
             HttpResponseMessage httpResponse;
             if (args == null)

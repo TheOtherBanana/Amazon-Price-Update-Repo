@@ -14,7 +14,7 @@ namespace AmazonPriceUpdateWebAPI
         public const string PrmServiceAcctPwd = "ServiceAccountPassword";
         public const string PrmAdminAcctId = "AdminAccountId";
         public const string PrmTablesToCreate = "TablesToCreate";
-
+        public const string PrmBaseRequestUri = "BaseRequestUri";
         public static string AWSAccessKey
         {
             get
@@ -62,6 +62,14 @@ namespace AmazonPriceUpdateWebAPI
                 string tablesString = ConfigurationManager.AppSettings[PrmTablesToCreate];
                 var tables = tablesString.Split(',').ToList();
                 return tables;
+            }
+        }
+
+        public static string BaseRequestUri
+        {
+            get
+            {
+                return ConfigurationManager.AppSettings[PrmBaseRequestUri];
             }
         }
     }

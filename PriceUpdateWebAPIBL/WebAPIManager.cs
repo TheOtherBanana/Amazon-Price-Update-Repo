@@ -1,5 +1,6 @@
 ﻿using AmazonProductAPIWrapper;
 using AWSProjects.CommonUtils;
+using EmailUtils;
 using ProductUpdateCatalogProvider;
 using ProductUpdateCatalogProvider.CatalogEntities;
 using System;
@@ -20,7 +21,7 @@ namespace PriceUpdateWebAPIBL
         public GetProductAPIContract GetProductDetails(GetProductAPIArgs args, HttpRequestMessage request)
         {
 
-            DynamoDBTracer.Tracer.Write
+            DynamoDBTracer.Tracer.Write(string.Format("GetProductDetails called. Args: {0}", args),"Verbose");
             this.CheckAndUpdateDoSLimits(request,"GetProductCall");
             ItemLookupResponse itemResponse = AmazonProductHelper.GetItemDetails(args.ProductASIN, args.ProductRegion.ToString());
             
@@ -32,12 +33,13 @@ namespace PriceUpdateWebAPIBL
                 ProductName = item.ItemAttributes.Title,
                 ProductRegion = args.ProductRegion
             };
-
+            DynamoDBTracer.Tracer.Write(string.Format("GetProductDetails succeeded. Args: {0}", args),"Verbose");
             return apiContract;
         }
 
-        public void UpdateProductDetails(UpdateProductAPIArgs args, HttpRequestMessage request)
+        public void UpdateProductDetails(UpdateProductAPIArgs args, HttpRequestMessage request, string baseRequestUri)
         {
+            DynamoDBTracer.Tracer.Write(string.Format("UpdateProductDetails called. Args: {0}", args),"Verbose");
             this.CheckAndUpdateDoSLimits(request,args.EmailId);
             ProductCatalogEntity catalogEntity = ValidateAndGetEntityFromArgs(args);
             var offers = AmazonProductHelper.GetOffers(args.ProductASIN, args.ProductRegion.ToString());
@@ -50,11 +52,24 @@ namespace PriceUpdateWebAPIBL
 
             var catalogProvider = PriceUpdateContext.Instance.CatalogFactory.GetProductCatalogProvider();
             catalogProvider.UpdateProduct(catalogEntity);
-            //Trace success
+
+            DynamoDBTracer.Tracer.Write(string.Format("Catalog update succeeded. Args: {0}", args), "Verbose");
+
+            //Start a background task to send confirmation email
+            //Task.Factory.StartNew(() => SendConfirmationMail(args, baseRequestUri), TaskCreationOptions.None);
+        }
+
+        private void SendConfirmationMail(UpdateProductAPIArgs args, string baseRequestUri)
+        {
+            string confirmRequestFormat = "{0}?EmailId={1}&ASIN={2}&confirmed=true";
+            string requestUri = string.Format(confirmRequestFormat, baseRequestUri.TrimEnd('/'), args.EmailId, args.ProductASIN);
+            string mailContent = WebAPIHelper.GetConfirmationMail(requestUri);
+            EmailManagerContext.Instance.SendHtmlEmail(args.EmailId, "Confirmation mail", mailContent);
         }
 
         public HttpResponseMessage ConfirmProductDetails(ProductIdArgs args, bool confirm, HttpRequestMessage request)
         {
+            DynamoDBTracer.Tracer.Write(string.Format("ConfirmProductDetails called. Args: {0}", args), "Verbose");
             this.CheckAndUpdateDoSLimits(request,args.EmailId);
             HttpResponseMessage response;
             try
@@ -74,8 +89,13 @@ namespace PriceUpdateWebAPIBL
             {
                 response = new HttpResponseMessage(HttpStatusCode.InternalServerError);
             }
-
+            DynamoDBTracer.Tracer.Write(string.Format("ConfirmProductDetails succeeded. Args: {0}", args), "Verbose");
             return response;
+        }
+
+        public void SendConfirmationMail(ProductIdArgs args)
+        {
+
         }
         private static ProductCatalogEntity ValidateAndGetEntityFromArgs(UpdateProductAPIArgs args)
         {
@@ -87,10 +107,10 @@ namespace PriceUpdateWebAPIBL
                 ToEmailEveryWeek = args.ToEmailEveryWeek,
                 ToEmailOnDate = args.ToEmailOnDate,
                 ToEmailOnPrice = args.ToEmailOnPrice,
-                IsConfirmed = false,
+                IsConfirmed = true,
                 IsDeleted = false,
                 ProductPriceType = args.ProductPriceType,
-                DateLastUpdated = DateTime.UtcNow.Date
+                DateLastUpdated = DateTime.UtcNow.Date,
             };
 
             if (catalogEntity.ToEmailEveryWeek)

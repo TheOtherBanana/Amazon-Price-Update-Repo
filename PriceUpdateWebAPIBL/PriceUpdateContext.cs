@@ -61,7 +61,6 @@ namespace PriceUpdateWebAPIBL
 
         public static void Initialize(string accessKey, string secretKey, string emailId, string emailIdPassword, string host, string displayName, List<string> tablesToInit)
         {
-            //Trace: Initializing
             Debug.Assert(!string.IsNullOrEmpty(accessKey), "AWS Access Key is null");
             Debug.Assert(!string.IsNullOrEmpty(secretKey), "AWS Secret Key is null");
             Debug.Assert(!string.IsNullOrEmpty(emailId), "Email Id is null");
@@ -72,8 +71,10 @@ namespace PriceUpdateWebAPIBL
             {
                 instance = new PriceUpdateContext(accessKey, secretKey, emailId, emailIdPassword, host, displayName, tablesToInit);
             }
-            
-            //Initialization successful. Trace non secrets
+
+
+            DynamoDBTracer.Tracer.Write("Initialization successful");
+            //. Trace non secrets
 
         }
 
@@ -84,7 +85,8 @@ namespace PriceUpdateWebAPIBL
 
 
             DynamoDBTracer.InitializeListener(this.aws_ACCESS_KEY, this.aws_SECRET_KEY);
-            //Trace
+
+            DynamoDBTracer.Tracer.Write("Initalizing Price update context");
             EmailManagerContext.Initialize(emailId, emailIdPassword, host, displayName);
             AmazonProductAPIContext.Initialize(this.aws_ACCESS_KEY, this.aws_SECRET_KEY);
 

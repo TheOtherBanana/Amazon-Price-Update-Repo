@@ -174,7 +174,6 @@ namespace AmazonProductAPIWrapper
             request.Add("IdType", "ASIN"); /* Because we are querying based on ASIN*/
             request.Add("Version", version);
 
-            //Trace: Executing GetOffersForItemId for itemId
             string response = this.ExecuteRequest(request, region);
             return response;
         }
@@ -194,7 +193,6 @@ namespace AmazonProductAPIWrapper
             request.Add("Version", version);
             request.Add("Marketplace", regionString.ToLower());
 
-            //Trace: Executing GetOffersForItemId for itemId
             string response = this.ExecuteRequest(request, region);
             return response;
         }

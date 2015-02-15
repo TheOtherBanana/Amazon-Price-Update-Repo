@@ -86,7 +86,7 @@ namespace ProductUpdateCatalogProvider
             }
             catch (Exception ex)
             {
-                //Trace the exception. Do not throw
+                DynamoDBTracer.Tracer.Write(string.Format("Init Catalog failed. Exception: ", ex));
             }
 
             return isInitialized;
