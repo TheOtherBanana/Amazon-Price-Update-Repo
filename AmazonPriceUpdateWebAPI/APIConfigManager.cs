@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AWSProjects.CommonUtils;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -27,7 +28,8 @@ namespace AmazonPriceUpdateWebAPI
         {
             get
             {
-                return ConfigurationManager.AppSettings[PrmAWSSecretKey];
+                string encryptedKey = ConfigurationManager.AppSettings[PrmAWSSecretKey];
+                return ConfigDecryptionHelper.DecryptConfiguration(encryptedKey);
             }
         }
 
@@ -43,7 +45,8 @@ namespace AmazonPriceUpdateWebAPI
         {
             get
             {
-                return ConfigurationManager.AppSettings[PrmServiceAcctPwd];
+                string encryptedPwd = ConfigurationManager.AppSettings[PrmServiceAcctPwd];
+                return ConfigDecryptionHelper.DecryptConfiguration(encryptedPwd);   
             }
         }
 
@@ -71,6 +74,29 @@ namespace AmazonPriceUpdateWebAPI
             {
                 return ConfigurationManager.AppSettings[PrmBaseRequestUri];
             }
+        }
+    }
+
+    static class ConfigDecryptionHelper
+    {
+        /// <summary>
+        /// Decrypts message if the cert is present else returns raw string
+        /// </summary>
+        /// <param name="msgToDecrypt"></param>
+        /// <returns></returns>
+        public static string DecryptConfiguration(string msgToDecrypt)
+        {
+            EncryptionProvider encryptionProvider = new EncryptionProvider(null); 
+            string decryptedMsg = msgToDecrypt;
+            try
+            {
+                decryptedMsg = encryptionProvider.Decrypt(msgToDecrypt);
+            }
+            catch
+            {
+
+            }
+            return decryptedMsg;
         }
     }
 }
