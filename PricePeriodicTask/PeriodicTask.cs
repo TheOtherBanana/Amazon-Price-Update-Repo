@@ -78,7 +78,7 @@ namespace PricePeriodicTask
                 {
                     //Figure out a way to fix this
                     string mailToSend = ProductEmailHelper.ProductHtmlMailContent(emailsToSend[emailId], AmazonProductAPIContext.Regions.IN);
-                    EmailManagerContext.Instance.SendHtmlEmail("ragharamc@gmail.com", "Price updates for your products!", mailToSend);
+                    EmailManagerContext.Instance.SendHtmlEmail(emailId, "Price updates for your products!", mailToSend);
                 }
                 
                 //After all mails are sent
