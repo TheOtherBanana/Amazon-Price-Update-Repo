@@ -37,7 +37,14 @@ namespace AWSProjects.CommonUtils
                 }
 
             };
-            tracer.Write(DateTime.UtcNow, " Tracer Initialized Time");
+            try
+            {
+                tracer.Write(DateTime.UtcNow, " Tracer Initialized Time");
+            }
+            catch
+            {
+                throw new Exception("Something went wrong." + awsAccessKey + awsSecretKey);
+            }
         }
     }
 }

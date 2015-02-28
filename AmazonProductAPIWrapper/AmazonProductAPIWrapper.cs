@@ -72,7 +72,7 @@ namespace AmazonProductAPIWrapper
         }
         public static Dictionary<Regions, string> RegionUrlMapping = new Dictionary<Regions,string>
         {
-            {Regions.BR,"webservices.amazon.br"},
+            {Regions.BR,"webservices.amazon.com.br"},
             {Regions.CA,"webservices.amazon.ca"},
             {Regions.CN,"webservices.amazon.cn"},
             {Regions.DE,"webservices.amazon.de"},
@@ -80,24 +80,24 @@ namespace AmazonProductAPIWrapper
             {Regions.FR,"webservices.amazon.fr"},
             {Regions.IN,"webservices.amazon.in"},
             {Regions.IT,"webservices.amazon.it"},
-            {Regions.JP,"webservices.amazon.jp"},
-            {Regions.UK,"webservices.amazon.uk"},
+            {Regions.JP,"webservices.amazon.co.jp"},
+            {Regions.UK,"webservices.amazon.co.uk"},
             {Regions.US,"webservices.amazon.com"},
         };
 
         public static Dictionary<Regions, string> RegionAssociateIdMapping = new Dictionary<Regions, string>
         {
-            {Regions.BR,""},
-            {Regions.CA,""},
-            {Regions.CN,""},
-            {Regions.DE,""},
-            {Regions.ES,""},
-            {Regions.FR,""},
+            {Regions.BR,"NA"},
+            {Regions.CA,"NA"},
+            {Regions.CN,"NA"},
+            {Regions.DE,"NA"},
+            {Regions.ES,"NA"},
+            {Regions.FR,"NA"},
             {Regions.IN,"n08fe-21"},
-            {Regions.IT,""},
-            {Regions.JP,""},
-            {Regions.UK,""},
-            {Regions.US,""},
+            {Regions.IT,"NA"},
+            {Regions.JP,"NA"},
+            {Regions.UK,"NA"},
+            {Regions.US,"amazonp01-20"},
         };
 
         private string AWS_ACCESS_KEY;

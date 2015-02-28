@@ -37,7 +37,7 @@ namespace PriceUpdateWebAPIBL
             return apiContract;
         }
 
-        public void UpdateProductDetails(UpdateProductAPIArgs args, HttpRequestMessage request, string baseRequestUri)
+        public GetProductAPIContract UpdateProductDetails(UpdateProductAPIArgs args, HttpRequestMessage request, string baseRequestUri)
         {
             DynamoDBTracer.Tracer.Write(string.Format("UpdateProductDetails called. Args: {0}", args),"Verbose");
             this.CheckAndUpdateDoSLimits(request,args.EmailId);
@@ -48,13 +48,24 @@ namespace PriceUpdateWebAPIBL
             catalogEntity.InitialPrice = (double.Parse(price) / 100).ToString();
             catalogEntity.CurrencyCode = offersSummary.LowestNewPrice.CurrencyCode;
             
-            
-
             var catalogProvider = PriceUpdateContext.Instance.CatalogFactory.GetProductCatalogProvider();
             catalogProvider.UpdateProduct(catalogEntity);
 
             DynamoDBTracer.Tracer.Write(string.Format("Catalog update succeeded. Args: {0}", args), "Verbose");
 
+            GetProductAPIArgs getArgs = new GetProductAPIArgs
+            {
+                ProductASIN = args.ProductASIN,
+                ProductRegion = args.ProductRegion,
+            };
+            
+            var productDetails = this.GetProductDetails(getArgs, request);
+            productDetails.CurrentPrice = catalogEntity.InitialPrice;
+            productDetails.CurrencyCode = catalogEntity.CurrencyCode;
+            productDetails.AmazonUrl = AmazonProductAPIWrapper.AmazonProductAPIConstants.RegionMapping[args.ProductRegion];
+            productDetails.EmailId = catalogEntity.EmailId;
+
+            return productDetails;
             //Start a background task to send confirmation email
             //Task.Factory.StartNew(() => SendConfirmationMail(args, baseRequestUri), TaskCreationOptions.None);
         }
@@ -107,7 +118,7 @@ namespace PriceUpdateWebAPIBL
                 ToEmailEveryWeek = args.ToEmailEveryWeek,
                 ToEmailOnDate = args.ToEmailOnDate,
                 ToEmailOnPrice = args.ToEmailOnPrice,
-                IsConfirmed = true,
+                IsConfirmed = false,
                 IsDeleted = false,
                 ProductPriceType = args.ProductPriceType,
                 DateLastUpdated = DateTime.UtcNow.Date,

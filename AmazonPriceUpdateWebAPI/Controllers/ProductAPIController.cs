@@ -8,9 +8,11 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Cors;
 
 namespace AmazonPriceUpdateWebAPI.Controllers
 {
+    [EnableCors(origins: "*", headers: "*", methods: "*")]
     public class ProductAPIController : ApiController
     {
         WebAPIManager apiManager;
@@ -85,8 +87,8 @@ namespace AmazonPriceUpdateWebAPI.Controllers
                 else
                 {
                     HttpRequest httpRequest = HttpContext.Current.Request;
-                    this.apiManager.UpdateProductDetails(args, Request, APIConfigManager.BaseRequestUri);
-                    httpResponse = Request.CreateResponse(HttpStatusCode.OK, "Updated successfully");
+                    var responseObj = this.apiManager.UpdateProductDetails(args, Request, APIConfigManager.BaseRequestUri);
+                    httpResponse = Request.CreateResponse(HttpStatusCode.OK, responseObj);
                 }
             }
             catch
@@ -110,6 +112,8 @@ namespace AmazonPriceUpdateWebAPI.Controllers
             {
                 HttpRequest httpRequest = HttpContext.Current.Request;
                 httpResponse = this.apiManager.ConfirmProductDetails(args, confirmed, Request);
+                //Fix this later. This is inconsistent
+                httpResponse = Request.CreateResponse(httpResponse.StatusCode, "Confirmed!");
             }
 
             return httpResponse;

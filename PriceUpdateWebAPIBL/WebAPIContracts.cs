@@ -54,8 +54,24 @@ namespace PriceUpdateWebAPIBL
         public string ProductName { get; set; }
         [DataMember]
         public AmazonProductAPIContext.Regions ProductRegion { get; set; }
+        [DataMember]
+        public string CurrentPrice { get; set; }
+        [DataMember]
+        public string CurrencyCode { get; set; }
+        [DataMember]
+        public string AmazonUrl { get; set; }
+        [DataMember]
+        public string EmailId { get; set; }
     }
 
+    [DataContract]
+    public class ActionSuccessAPIContract
+    {
+        [DataMember]
+        string Action { get; set; }
+        [DataMember]
+        string Message { get; set; }
+    }
 
     [DataContract]
     public class UpdateProductAPIArgs : IWebAPIArgs
@@ -99,4 +115,5 @@ namespace PriceUpdateWebAPIBL
         }
 
     }
+
 }

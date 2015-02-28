@@ -7,15 +7,16 @@ using System.Web;
 
 namespace AmazonPriceUpdateWebAPI
 {
-    public static class APIConfigManager
+    public class APIConfigManager
     {
-        public const string PrmAWSAccessKey = "AWSAccessKey";
-        public const string PrmAWSSecretKey = "AWSSecretKey";
+        public const string PrmAWSAccessKey = "AWS_ACCESS_KEY_ID";
+        public const string PrmAWSSecretKey = "AWS_SECRET_KEY";
         public const string PrmServiceAcctId = "ServiceAccountId";
-        public const string PrmServiceAcctPwd = "ServiceAccountPassword";
+        public const string PrmServiceAcctPwd = "PARAM1";
         public const string PrmAdminAcctId = "AdminAccountId";
         public const string PrmTablesToCreate = "TablesToCreate";
         public const string PrmBaseRequestUri = "BaseRequestUri";
+        public const string PrmEncryptionCertificateThumbprint = "EncryptionCertificateThumbprint";
         public static string AWSAccessKey
         {
             get
@@ -29,7 +30,8 @@ namespace AmazonPriceUpdateWebAPI
             get
             {
                 string encryptedKey = ConfigurationManager.AppSettings[PrmAWSSecretKey];
-                return ConfigDecryptionHelper.DecryptConfiguration(encryptedKey);
+                string thumbprint = EncryptionCertificateThumbprint;
+                return ConfigDecryptionHelper.DecryptConfiguration(encryptedKey,thumbprint);
             }
         }
 
@@ -46,7 +48,8 @@ namespace AmazonPriceUpdateWebAPI
             get
             {
                 string encryptedPwd = ConfigurationManager.AppSettings[PrmServiceAcctPwd];
-                return ConfigDecryptionHelper.DecryptConfiguration(encryptedPwd);   
+                string thumbprint = EncryptionCertificateThumbprint;
+                return ConfigDecryptionHelper.DecryptConfiguration(encryptedPwd, thumbprint);   
             }
         }
 
@@ -75,16 +78,24 @@ namespace AmazonPriceUpdateWebAPI
                 return ConfigurationManager.AppSettings[PrmBaseRequestUri];
             }
         }
+
+        public static string EncryptionCertificateThumbprint
+        {
+            get
+            {
+                return ConfigurationManager.AppSettings[PrmEncryptionCertificateThumbprint];
+            }
+        }
     }
 
-    static class ConfigDecryptionHelper
+    public static class ConfigDecryptionHelper
     {
         /// <summary>
         /// Decrypts message if the cert is present else returns raw string
         /// </summary>
         /// <param name="msgToDecrypt"></param>
         /// <returns></returns>
-        public static string DecryptConfiguration(string msgToDecrypt)
+        public static string DecryptConfiguration(string msgToDecrypt, string thumbprint)
         {
             EncryptionProvider encryptionProvider = new EncryptionProvider(null); 
             string decryptedMsg = msgToDecrypt;

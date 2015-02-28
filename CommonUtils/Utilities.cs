@@ -76,7 +76,7 @@ namespace AWSProjects.CommonUtils
         }
     }
 
-    class EncryptionUtilities
+    public class EncryptionUtilities
     {
         /// <summary> 
         /// Converts a hex string to byte array 
@@ -126,5 +126,29 @@ namespace AWSProjects.CommonUtils
             return strTemp;
         }
 
+        public static X509Certificate2 GetEncryptionCertificateFromThumbprint(string thumbprint)
+        {
+            X509Certificate2 encCertificate = null;
+            X509Store certStoreLocal = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+            X509Store certStoreUser = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            certStoreLocal.Open(OpenFlags.ReadOnly);
+            certStoreUser.Open(OpenFlags.ReadOnly);
+
+            var certCollection = certStoreLocal.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, false);
+            var certCollectionUser = certStoreUser.Certificates.Find(X509FindType.FindByThumbprint, thumbprint,false );
+            if(certCollection.Count > 0)
+            {
+                encCertificate = certCollection[0];
+            }
+            else if(certCollectionUser.Count > 0)
+            {
+                encCertificate = certCollectionUser[0];
+            }
+            else 
+            {
+                throw new Exception("Can't find Encryption Certificate" + thumbprint);
+            }
+            return encCertificate;
+        }
     }
 }
